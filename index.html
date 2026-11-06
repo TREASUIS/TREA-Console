@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Treasury Console</title>
+<style>
+:root{--g:#0b6150;--g2:#e1f0ea;--bg:#f2f5f2;--c:#fff;--t:#16241f;--m:#5c6c65;--b:#d9e3dd;--r:#b5412f;--o:#a06a12;--gold:#c9a227;--navy:#14405c}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--t)}
+header{position:relative;overflow:hidden;background:linear-gradient(120deg,#073f33 0%,#0b6150 50%,#14506b 100%);color:#fff;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;border-bottom:3px solid var(--gold)}
+header h1{font-size:18px;margin:0}header small{opacity:.8}
+nav{display:flex;gap:4px;padding:8px 14px;background:var(--c);border-bottom:1px solid var(--b);overflow-x:auto;position:sticky;top:0;z-index:5}
+nav button{border:0;background:none;padding:8px 14px;border-radius:8px;font:inherit;color:var(--m);cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--g2);color:var(--g);font-weight:700;box-shadow:inset 0 -3px 0 var(--gold)}
+main{max-width:1000px;margin:0 auto;padding:18px 14px 60px}
+.card{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px}
+.stat b{display:block;font-size:22px}.stat span{color:var(--m);font-size:13px}
+h2{font-size:17px;margin:0 0 12px}h3{font-size:15px;margin:0 0 6px}
+input,select,textarea,button.p{font:inherit}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--b);border-radius:8px;background:#fff;color:var(--t)}
+label{font-size:13px;color:var(--m);display:block;margin-bottom:3px}
+.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+button.p{background:linear-gradient(135deg,#0b6150,#14506b);color:#fff;border:0;padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:600}
+button.s{background:none;border:1px solid var(--b);padding:4px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:13px;color:var(--t)}
+button.s.d{color:var(--r)}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--b);white-space:nowrap}th{color:var(--m);font-weight:500;font-size:13px}
+td.w{white-space:normal;min-width:140px}
+.in{color:var(--g)}.ex{color:var(--r)}
+.tag{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--g2);color:var(--g)}
+.tag.o{background:#fff1da;color:var(--o)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;align-items:start}
+.task{border:1px solid var(--b);border-radius:10px;padding:10px;margin-bottom:8px;background:#fff}
+.task p{margin:4px 0;color:var(--m);font-size:13px}.row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.gl{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.gl button{border:1px solid var(--b);background:#fff;padding:6px 12px;border-radius:99px;cursor:pointer;font:inherit}
+.gl button.on{background:var(--g);color:#fff;border-color:var(--g)}
+.body{white-space:pre-wrap}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--t);color:#fff;padding:10px 16px;border-radius:10px;display:none;z-index:30;max-width:90%}
+.empty{color:var(--m);padding:10px 0}ol{padding-left:20px}code{background:var(--g2);padding:1px 5px;border-radius:4px}
+.mw{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;z-index:20;padding:12px}
+.mb2{background:#fff;border-radius:12px;padding:18px;width:min(560px,100%);max-height:90vh;overflow:auto}
+.dc{border:1px solid var(--b);border-radius:10px;padding:10px;margin-bottom:8px}.dn{margin-bottom:6px;font-size:14px;word-break:break-all}
+body{background:linear-gradient(180deg,#e3eee8 0,#f3f6f3 320px) fixed}
+header::before{content:"";position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.13'%3E%3Cpath d='M24 4l5.5 13.5L44 24l-14.5 6.5L24 44l-5.5-13.5L4 24l14.5-6.5z'/%3E%3Crect x='14' y='14' width='20' height='20' transform='rotate(45 24 24)'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+header>*{position:relative}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:22px;color:#073f33;background:linear-gradient(135deg,#e6c95c,#c9a227);box-shadow:0 2px 6px #0004}
+header h1{letter-spacing:.3px;font-size:19px}
+.card{border-radius:14px;box-shadow:0 1px 3px #0b3d3314;border-color:#d3dfd8}
+.grid .stat{border-top:4px solid var(--g)}.grid .stat:nth-child(2){border-top-color:#c4573a}.grid .stat:nth-child(3){border-top-color:var(--navy)}.grid .stat:nth-child(4){border-top-color:var(--gold)}.grid .stat:nth-child(5){border-top-color:#6d8f2c}
+.stat b{color:var(--navy)}.stat b.in{color:var(--g)}.stat b.ex{color:var(--r)}
+h2{color:#0a4a3b}th{color:#0a4a3b;background:#f0f6f3}
+.tag.o{background:#fbefd0;color:#8a5d0a}
+button.s:hover{border-color:var(--g);color:var(--g)}button.s.on{background:var(--g);color:#fff;border-color:var(--g)}
+.gl button.on{background:linear-gradient(135deg,#0b6150,#14506b)}
+.seg{display:flex;gap:6px}.sub{color:var(--m);margin:2px 0 12px;font-size:14px}
+.cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}.cg h3{color:var(--navy);margin-bottom:8px}
+.lg{font-size:12px;color:var(--m);margin-top:4px}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin:0 4px 0 10px}.lg i:first-child{margin-left:0}
+.cr{display:grid;grid-template-columns:110px 1fr auto;gap:8px;align-items:center;margin:9px 0;font-size:13px}
+.cr .bar{height:12px;border-radius:6px;background:#eef3f0;overflow:hidden}.cr .bar i{display:block;height:100%;border-radius:6px}
+
+h2::before{content:"";display:inline-block;width:5px;height:16px;border-radius:3px;background:var(--gold);margin-right:8px;vertical-align:-2px}
+.hello{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;background:#fff;border:1px solid #d3dfd8;border-left:5px solid var(--gold);border-radius:14px;padding:14px 18px;margin-bottom:14px;box-shadow:0 1px 3px #0b3d3314}
+.hello b{display:block;font-size:17px;color:#0a4a3b}.hello span{color:var(--m);font-size:13px}
+.vals{display:flex;gap:6px;flex-wrap:wrap}.vals em{font-style:normal;font-size:12px;font-weight:600;padding:4px 11px;border-radius:99px;background:var(--g2);color:var(--g);border:1px solid #bfdccf}.vals em:nth-child(2){background:#e4edf3;color:var(--navy);border-color:#c3d5e1}.vals em:nth-child(3){background:#faf0cf;color:#7d5d08;border-color:#ecd9a0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:14px}
+.tile{position:relative;overflow:hidden;text-align:left;border:0;border-radius:14px;padding:14px;color:#fff;cursor:pointer;font:inherit;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:0 2px 6px #0b3d3322;opacity:.82;transition:.15s}
+.tile:hover{opacity:1;transform:translateY(-2px)}.tile.on{opacity:1;outline:3px solid var(--gold);outline-offset:2px}
+.tile::after{content:"";position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.14'%3E%3Cpath d='M24 4l5.5 13.5L44 24l-14.5 6.5L24 44l-5.5-13.5L4 24l14.5-6.5z'/%3E%3Crect x='14' y='14' width='20' height='20' transform='rotate(45 24 24)'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+.tile>*{position:relative;z-index:1}.tile .ti{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#ffffff2e;font-size:19px;margin-bottom:8px}.tile b{display:block;font-size:14.5px}.tile small{opacity:.85;font-size:12px}
+.tile.new{background:#fff;color:var(--g);border:2px dashed #b9cfc5;box-shadow:none;opacity:1}.tile.new .ti{background:var(--g2)}
+.gp{padding:0;overflow:hidden}
+.gb{position:relative;display:flex;align-items:center;gap:14px;padding:20px 22px;color:#fff;background:linear-gradient(120deg,var(--a),var(--b));border-bottom:3px solid var(--gold)}
+.gb::before{content:"";position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.14'%3E%3Cpath d='M24 4l5.5 13.5L44 24l-14.5 6.5L24 44l-5.5-13.5L4 24l14.5-6.5z'/%3E%3Crect x='14' y='14' width='20' height='20' transform='rotate(45 24 24)'/%3E%3C/g%3E%3C/svg%3E")}.gb>*{position:relative}.gb h2{color:#fff;margin:0}.gb h2::before{display:none}.gb small{opacity:.85}
+.gi{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:#ffffff2e;font-size:26px}
+.gc{padding:18px 22px}.gc p{margin:8px 0}.gc a{color:var(--navy);font-weight:600}.sh{margin:16px 0 8px;color:#0a4a3b;font-size:15px;border-bottom:2px solid #e8dba8;padding-bottom:4px}
+.steps,.chk,.lk{display:grid;gap:9px;margin:10px 0}
+.st{display:flex;gap:12px;align-items:flex-start;background:#f6faf8;border:1px solid #dbe8e1;border-radius:12px;padding:10px 12px}
+.st i{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:13px;color:#fff;background:linear-gradient(135deg,#0b6150,#14506b);box-shadow:0 0 0 3px #e3c96a}
+.ck{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-radius:10px;background:#fbf7e6;border:1px solid #efe2ae}
+.ck i{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:12px;color:#fff;background:var(--gold)}
+.lc{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:linear-gradient(90deg,#e8f2ee,#f1f5f9);border:1px solid #cfe0d8;border-radius:12px;padding:8px 10px}
+.lc a{flex:1;min-width:200px;display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center;text-decoration:none;color:var(--navy)}
+.lc a span{grid-row:span 2;font-size:20px}.lc a b{color:#0a4a3b}.lc a small{color:var(--m);word-break:break-all}
+.addl{margin:6px 22px 14px;padding:12px 14px;border:1px dashed #b9cfc5;border-radius:12px;background:#fafcfb}.addl>b{display:block;margin-bottom:8px;color:#0a4a3b}
+.sec{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px}.sec h2{margin:0}.sec span{color:var(--m);font-size:13px}
+.qrs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.qr{border:1px solid #d3dfd8;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 2px 6px #0b3d3314}
+.qh{padding:10px 14px;font-weight:700;letter-spacing:.3px}.qb{padding:14px;display:grid;gap:10px;justify-items:stretch}
+.qb img{width:100%;max-width:260px;justify-self:center;border-radius:10px;border:1px solid var(--b);background:#fff}
+.qe{height:200px;display:grid;place-items:center;border:2px dashed #b9cfc5;border-radius:12px;color:var(--m);font-size:13px;background:#f6faf8}
+a.btnl{text-decoration:none;display:inline-block;background:none;border:1px solid var(--b);padding:4px 10px;border-radius:7px;font-size:13px;color:var(--t)}
+</style>
+</head>
+<body>
+<header><div class="brand"><span class="logo">☪</span><div><h1>Treasury Console</h1><small>Sunway University Islamic Society</small></div></div><span><small id="sync">Not connected</small> <button class="s" data-act="refresh" style="color:#fff;border-color:#fff9">↻ Refresh</button></span></header>
+<nav id="nav"></nav>
+<main id="main"></main>
+<div id="toast"></div><div id="mod" class="mw"></div>
+<input type="file" id="fi" multiple accept="image/*,.pdf" hidden><input type="file" id="qf" accept="image/*" hidden>
+<script>
+const $ = s => document.querySelector(s);
+const ls = { get: k => { try { return localStorage.getItem(k) || '' } catch (e) { return '' } }, set: (k, v) => { try { localStorage.setItem(k, v) } catch (e) {} } };
+const S = { url: ls.get('url'), token: ls.get('token'), me: ls.get('me') || 'Treasurer', tab: 'Overview', gid: null, edit: false, claimView: 'pending', period: 'week', gtab: 'guides', q: '', docs: [], mdocs: [], attachRow: null,
+  D: { transactions: [], claims: [], tasks: [], guides: [] } };
+const TABS = ['Overview', 'Transactions', 'Claims', 'Tasks', 'Guides', 'Settings'];
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const rm = n => 'RM ' + (+n || 0).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const today = () => new Date().toISOString().slice(0, 10);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const isPaid = c => /paid|done|reimbursed|settled/i.test(c.status);
+const isInc = t => /inc|credit|in$/i.test(t.type);
+function toast(m) { const t = $('#toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = 'none', 3500); }
+
+const DEFAULT_GUIDES = [
+  { id: 'g1', title: 'Recording transactions', body: 'Every income or expense goes into the Transactions tab the same day.\n\n- Pick the correct date on the receipt, not today’s date\n- Choose Income or Expense\n- Use a consistent category (Events, Dawah, Welfare, Admin, Sponsorship)\n- Write a clear description, e.g. “Iftar catering – Ramadan week 2”\n- Keep the receipt or bank slip and file it by month' },
+  { id: 'g2', title: 'Reimbursement claims', body: 'Claims arrive through the Google Form and show up in the Claims tab.\n\n1. Check the receipt is attached and matches the amount\n2. Confirm the event or purpose was approved\n3. Pay via bank transfer using the account details shown\n4. Tap “Mark paid” so it leaves the pending list\n5. Record the payout in Transactions as an Expense' },
+  { id: 'g3', title: 'Month-end closing', body: '- Compare the ledger balance with the bank statement\n- Chase any missing receipts\n- Clear all pending claims or note why they are held\n- Send the treasurer a short summary: total income, total expenses, balance' }
+];
+
+async function call(url) { const r = await fetch(url); const d = await r.json(); if (d.error) throw new Error(d.error); return d; }
+let raw = '', wipe = false;
+async function load(quiet) {
+  if (!S.url) { if (!quiet) render(); return; }
+  try {
+    if (!quiet) $('#sync').textContent = 'Syncing…';
+    const d = await call(S.url + '?token=' + encodeURIComponent(S.token)), j = JSON.stringify(d);
+    $('#sync').textContent = 'Synced ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (j !== raw) {
+      raw = j; S.D = d;
+      if (d.txError) toast('Transactions: ' + d.txError);
+      if (!d.guides.some(g => !/^qr-/.test(g.id))) { for (const g of DEFAULT_GUIDES) await post({ action: 'saveGuide', item: g }, true); S.D.guides = S.D.guides.concat(DEFAULT_GUIDES); }
+      if (!S.gid && GL()[0]) S.gid = GL()[0].id;
+      if (quiet && (S.edit || /INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName))) { nav(); return; }
+    } else if (quiet) return;
+  } catch (e) { $('#sync').textContent = 'Not connected'; if (!quiet) toast('Could not load: ' + e.message); }
+  render();
+}
+async function post(body, noReload) {
+  const r = await fetch(S.url, { method: 'POST', body: JSON.stringify({ ...body, token: S.token }) });
+  let d; try { d = await r.json(); } catch (x) { throw new Error('Server rejected the request (file may be too large)'); }
+  if (d.error) throw new Error(d.error);
+  if (!noReload) await load();
+  return d;
+}
+async function run(body, msg, w) {
+  try { toast('Saving…'); await post(body, true); if (w) { wipe = true; S.docs = []; } toast(msg || 'Saved to Google Sheets'); await load(); }
+  catch (e) { toast('Failed: ' + e.message); }
+}
+function prep(f) {
+  return new Promise((ok, no) => {
+    if (f.size > 10e6) return no(new Error(f.name + ' is over 10 MB'));
+    const rd = new FileReader(), raw64 = () => rd.result.split(',')[1];
+    rd.onerror = () => no(new Error('Could not read ' + f.name));
+    rd.onload = () => {
+      if (!f.type.startsWith('image/')) return ok({ name: f.name, mime: f.type || 'application/pdf', data: raw64() });
+      const im = new Image();
+      im.onerror = () => ok({ name: f.name, mime: f.type || 'image/jpeg', data: raw64() });
+      im.onload = () => { const k = Math.min(1, 1600 / Math.max(im.width, im.height)), c = document.createElement('canvas');
+        c.width = im.width * k; c.height = im.height * k; c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        ok({ name: f.name.replace(/\.\w+$/, '') + '.jpg', mime: 'image/jpeg', data: c.toDataURL('image/jpeg', .85).split(',')[1] }); };
+      im.src = rd.result;
+    };
+    rd.readAsDataURL(f);
+  });
+}
+const safe = s => String(s || '').slice(0, 40).replace(/[\\/:*?"<>|]/g, '');
+
+function nav() { $('#nav').innerHTML = TABS.map(t => `<button class="${t === S.tab ? 'on' : ''}" data-tab="${t}">${t}${t === 'Claims' ? ' (' + S.D.claims.filter(c => !isPaid(c)).length + ')' : ''}</button>`).join(''); }
+function render() {
+  const keep = {};
+  if (!wipe) document.querySelectorAll('#main input[id],#main textarea[id],#main select[id]').forEach(e => keep[e.id] = e.value);
+  wipe = false; nav(); $('#main').innerHTML = ({ Overview: vOverview, Transactions: vTx, Claims: vClaims, Tasks: vTasks, Guides: vGuides, Settings: vSettings })[S.tab]();
+  Object.keys(keep).forEach(id => { const e = $('#' + id); if (e) e.value = keep[id]; });
+}
+
+function totals() { let i = 0, e = 0; S.D.transactions.forEach(t => isInc(t) ? i += t.amount : e += t.amount); return { i, e, b: i - e }; }
+function vOverview() {
+  if (!S.url) return vSettings();
+  const t = totals(), pc = S.D.claims.filter(c => !isPaid(c)), open = S.D.tasks.filter(x => x.status !== 'done');
+  const last = S.D.transactions.slice(-5).reverse();
+  return `${hello()}<div class="grid">
+  <div class="card stat"><b class="in">${rm(t.i)}</b><span>Total income</span></div>
+  <div class="card stat"><b class="ex">${rm(t.e)}</b><span>Total expenses</span></div>
+  <div class="card stat"><b>${rm(t.b)}</b><span>Balance</span></div>
+  <div class="card stat"><b>${pc.length} · ${rm(pc.reduce((a, c) => a + c.amount, 0))}</b><span>Pending claims</span></div>
+  <div class="card stat"><b>${open.length}</b><span>Open tasks</span></div></div>
+  ${vCharts()}
+  <div class="card"><h2>Latest transactions</h2>${txTable(last)}</div>
+  <div class="card"><h2>Open tasks</h2>${open.length ? open.slice(0, 5).map(x => `<p><b>${esc(x.title)}</b> <span class="tag o">${esc(x.assignee)}</span> ${x.due ? 'due ' + esc(x.due) : ''}</p>`).join('') : '<div class="empty">Nothing open.</div>'}</div>`;
+}
+
+function pd(s) { s = String(s || ''); let m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s); if (m) return new Date(+m[1], m[2] - 1, +m[3]);
+  m = /^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/.exec(s); if (m) return new Date(m[3] < 100 ? 2000 + +m[3] : +m[3], m[2] - 1, +m[1]); const d = new Date(s); return isNaN(d) ? null : d; }
+function buckets() {
+  const wk = S.period === 'week', n = wk ? 8 : 6, now = new Date(), B = [];
+  let st = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (wk) st.setDate(st.getDate() - ((st.getDay() + 6) % 7)); else st = new Date(now.getFullYear(), now.getMonth(), 1);
+  for (let k = n - 1; k >= 0; k--) {
+    const s = new Date(st), e = new Date(st);
+    if (wk) { s.setDate(s.getDate() - 7 * k); e.setDate(s.getDate() + 7); } else { s.setMonth(s.getMonth() - k); e.setMonth(s.getMonth() + 1); }
+    if (wk) { e.setTime(s.getTime()); e.setDate(e.getDate() + 7); } else { e.setTime(s.getTime()); e.setMonth(e.getMonth() + 1); }
+    B.push({ s, e, i: 0, x: 0, l: wk ? s.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : s.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' }) });
+  }
+  let bal = 0;
+  S.D.transactions.forEach(t => { const d = pd(t.date); if (!d) return; if (d < B[0].s) bal += isInc(t) ? t.amount : -t.amount;
+    else B.forEach(b => { if (d >= b.s && d < b.e) { if (isInc(t)) b.i += t.amount; else b.x += t.amount; } }); });
+  B.forEach(b => { bal += b.i - b.x; b.bal = bal; });
+  return B;
+}
+const fk = n => Math.abs(n) >= 1000 ? (n / 1000).toFixed(Math.abs(n) >= 10000 ? 0 : 1) + 'k' : Math.round(n);
+function grid(W, L, T, ph, lo, hi) { let s = ''; for (let k = 0; k <= 4; k++) { const y = T + ph - ph * k / 4; s += `<line x1="${L}" x2="${W - 8}" y1="${y}" y2="${y}" stroke="#dbe4de"/><text x="${L - 6}" y="${y + 4}" font-size="11" text-anchor="end" fill="#5c6c65">${fk(lo + (hi - lo) * k / 4)}</text>`; } return s; }
+function barSvg(B) {
+  const W = 600, H = 230, L = 40, T = 12, ph = H - T - 28, pw = W - L - 8, n = B.length, gw = pw / n, bw = Math.min(22, gw / 3), mx = Math.max(1, ...B.map(b => Math.max(b.i, b.x)));
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Income versus expenses">` + grid(W, L, T, ph, 0, mx);
+  B.forEach((b, j) => { const cx = L + gw * j + gw / 2, a = ph * b.i / mx, c = ph * b.x / mx;
+    s += `<rect x="${cx - bw - 1}" y="${T + ph - a}" width="${bw}" height="${a}" rx="3" fill="#0b6150"><title>${b.l} income ${rm(b.i)}</title></rect><rect x="${cx + 1}" y="${T + ph - c}" width="${bw}" height="${c}" rx="3" fill="#c4573a"><title>${b.l} expenses ${rm(b.x)}</title></rect><text x="${cx}" y="${H - 9}" font-size="11" text-anchor="middle" fill="#5c6c65">${b.l}</text>`; });
+  return s + '</svg>';
+}
+function lineSvg(B) {
+  const W = 600, H = 230, L = 44, T = 12, ph = H - T - 28, pw = W - L - 18, n = B.length, v = B.map(b => b.bal), lo = Math.min(0, ...v), hi = Math.max(1, ...v), rg = hi - lo || 1;
+  const X = j => L + (n > 1 ? pw * j / (n - 1) : pw / 2), Y = q => T + ph - ph * (q - lo) / rg, pts = B.map((b, j) => X(j) + ',' + Y(b.bal)).join(' ');
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Balance over time">` + grid(W, L, T, ph, lo, hi);
+  s += `<polygon points="${X(0)},${T + ph} ${pts} ${X(n - 1)},${T + ph}" fill="#0b6150" fill-opacity=".13"/><polyline points="${pts}" fill="none" stroke="#0b6150" stroke-width="2.5"/>`;
+  B.forEach((b, j) => s += `<circle cx="${X(j)}" cy="${Y(b.bal)}" r="4.5" fill="#c9a227" stroke="#fff" stroke-width="1.5"><title>${b.l}: ${rm(b.bal)}</title></circle><text x="${X(j)}" y="${H - 9}" font-size="11" text-anchor="middle" fill="#5c6c65">${b.l}</text>`);
+  return s + '</svg>';
+}
+function catHtml(B) {
+  const a = B[0].s, z = B[B.length - 1].e, m = {};
+  S.D.transactions.forEach(t => { if (isInc(t)) return; const d = pd(t.date); if (!d || d < a || d >= z) return; const k = String(t.cat || 'Uncategorised').split('\n')[0]; m[k] = (m[k] || 0) + t.amount; });
+  const L = Object.entries(m).sort((p, q) => q[1] - p[1]).slice(0, 6), P = ['#0b6150', '#c9a227', '#14405c', '#a8475a', '#6d8f2c', '#7b5ea7'];
+  if (!L.length) return '<div class="empty">No expenses in this range.</div>';
+  return L.map(([k, v], j) => `<div class="cr"><span title="${esc(k)}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(k)}</span><div class="bar"><i style="width:${Math.max(3, 100 * v / L[0][1])}%;background:${P[j]}"></i></div><b>${rm(v)}</b></div>`).join('');
+}
+function vCharts() {
+  const B = buckets(), u = S.period === 'week' ? 'week' : 'month', c = B[B.length - 1], pb = (k, n) => `<button class="s${S.period === k ? ' on' : ''}" data-per="${k}">${n}</button>`;
+  return `<div class="card"><div class="row" style="justify-content:space-between;align-items:center;margin:0 0 4px"><h2 style="margin:0">Insights</h2><div class="seg">${pb('week', 'Weekly')}${pb('month', 'Monthly')}</div></div>
+  <p class="sub">This ${u}: <b class="in">+${rm(c.i)}</b> income · <b class="ex">−${rm(c.x)}</b> expenses · net <b>${rm(c.i - c.x)}</b> (showing last ${B.length} ${u}s)</p>
+  <div class="cg"><div><h3>Income vs expenses</h3>${barSvg(B)}<div class="lg"><i style="background:#0b6150"></i>Income<i style="background:#c4573a"></i>Expenses</div></div>
+  <div><h3>Balance at end of ${u}</h3>${lineSvg(B)}</div>
+  <div><h3>Where the money went</h3>${catHtml(B)}</div></div></div>`;
+}
+function txTable(rows) {
+  if (!rows.length) return '<div class="empty">No transactions yet.</div>';
+  return `<div class="tw"><table><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th>Amount</th><th>Proof</th></tr>${rows.map(t =>
+    `<tr><td>${esc(t.date)}</td><td class="w">${esc(t.desc)}</td><td>${esc(t.cat)}</td><td><span class="tag ${isInc(t) ? '' : 'o'}">${isInc(t) ? 'Income' : 'Expense'}</span></td><td class="${isInc(t) ? 'in' : 'ex'}">${isInc(t) ? '+' : '−'}${rm(t.amount)}</td>
+    <td>${(t.proof || []).map(p => `<a href="${esc(p.u)}" target="_blank" rel="noopener" title="${esc(p.t)}">${p.k === 'transfer' ? '🧾 Transfer' : '📎 Source'}</a>`).join(' ')} <button class="s" data-attach="${t.row}" title="Attach proof">＋</button></td></tr>`).join('')}</table></div>`;
+}
+function vTx() {
+  const cats = [...new Set(S.D.transactions.map(t => t.cat).filter(Boolean))].sort();
+  const q = S.q.toLowerCase(), rows = S.D.transactions.filter(t => !q || (t.desc + t.cat + t.date).toLowerCase().includes(q)).slice().reverse();
+  return `<div class="card"><h2>Add transaction</h2><div class="f">
+  <div><label>Date</label><input id="tx-date" type="date" value="${today()}"></div>
+  <div><label>Type</label><select id="tx-type"><option>Expense</option><option>Income</option></select></div>
+  <div><label>Category</label><input id="tx-cat" list="cats" placeholder="e.g. Events"><datalist id="cats">${cats.map(c => `<option value="${esc(c)}">`).join('')}</datalist></div>
+  <div><label>Amount (RM)</label><input id="tx-amt" type="number" step="0.01" min="0"></div>
+  <div style="grid-column:1/-1"><label>Description</label><input id="tx-desc"></div>
+  <div><button class="p" data-act="addTx">Add to Google Sheets</button></div></div></div>
+  <div class="card"><h2>All transactions (${rows.length})</h2><input id="q" placeholder="Search…" value="${esc(S.q)}" style="margin-bottom:10px">${txTable(rows)}</div>`;
+}
+function vClaims() {
+  const rows = S.D.claims.filter(c => S.claimView === 'all' || !isPaid(c)).slice().reverse();
+  return `<div class="card"><div class="row" style="justify-content:space-between;margin:0 0 10px"><h2 style="margin:0">Reimbursement claims</h2>
+  <div class="row" style="margin:0"><button class="s" data-view="pending">${S.claimView === 'pending' ? '● ' : ''}Pending</button><button class="s" data-view="all">${S.claimView === 'all' ? '● ' : ''}All</button></div></div>
+  ${!rows.length ? '<div class="empty">No pending claims. 🎉</div>' : `<div class="tw"><table><tr><th>Name</th><th>Amount</th><th>Bank</th><th>Account no.</th><th>Purpose</th><th>Submitted</th><th></th></tr>${rows.map(c =>
+    `<tr><td>${esc(c.name)}</td><td><b>${rm(c.amount)}</b></td><td>${esc(c.bank)}</td><td>${esc(c.acc)} ${c.acc ? `<button class="s" data-copy="${esc(c.acc)}">Copy</button>` : ''}</td><td class="w">${esc(c.why)}</td><td>${esc(c.date)}</td>
+    <td>${isPaid(c) ? `<span class="tag">Paid</span> <button class="s" data-claim="${c.row}" data-st="">Undo</button>` : `<button class="s" data-claim="${c.row}" data-st="Paid">Mark paid</button>`}</td></tr>`).join('')}</table></div>`}
+  <p style="color:var(--m);font-size:13px;margin-bottom:0">“Mark paid” writes Paid into a Status column on your Form tab (created automatically).</p></div>`;
+}
+function vTasks() {
+  const cols = [['todo', 'To do'], ['doing', 'In progress'], ['done', 'Done']];
+  return `<div class="card"><h2>Assign a task</h2><div class="f">
+  <div style="grid-column:1/-1"><label>Task</label><input id="t-title"></div>
+  <div><label>Assigned to</label><input id="t-who" value="Vice Treasurer"></div>
+  <div><label>Due date</label><input id="t-due" type="date"></div>
+  <div style="grid-column:1/-1"><label>Notes</label><textarea id="t-notes" rows="2"></textarea></div>
+  <div><button class="p" data-act="addTask">Add task</button></div></div></div>
+  <div class="cols">${cols.map(([k, n]) => { const L = S.D.tasks.filter(t => (t.status || 'todo') === k); return `<div><h3>${n} (${L.length})</h3>${L.map(t => `<div class="task"><b>${esc(t.title)}</b><p>${esc(t.assignee)}${t.due ? ' · due ' + esc(t.due) : ''}</p>${t.notes ? `<p>${esc(t.notes)}</p>` : ''}
+  <div class="row">${cols.filter(c => c[0] !== k).map(c => `<button class="s" data-task="${t.id}" data-to="${c[0]}">→ ${c[1]}</button>`).join('')}<button class="s d" data-deltask="${t.id}">Delete</button></div></div>`).join('') || '<div class="empty">Empty</div>'}</div>`; }).join('')}</div>`;
+}
+const GL = () => S.D.guides.filter(g => !/^qr-/.test(g.id));
+const GI = [[/record|transaction|ledger/i, '🧾'], [/claim|reimb/i, '💸'], [/month|clos|report/i, '📅'], [/form|link/i, '🔗'], [/qr|pay|bank/i, '📱'], [/event|program/i, '🎪'], [/donat|zakat|sadaqah/i, '🤲']];
+const GC = [['#0b6150', '#14506b'], ['#14405c', '#0b6150'], ['#8a6d12', '#c9a227'], ['#7a2f4a', '#14405c'], ['#2d6a3a', '#6d8f2c'], ['#5b3f8c', '#14405c']];
+const gIcon = t => (GI.find(x => x[0].test(t)) || [0, '📘'])[1];
+const QR = [['qr-maybank', 'Maybank', '#f5c400', '#1c1c1c'], ['qr-tng', 'Touch ’n Go eWallet', '#005abb', '#fff']];
+const qrData = id => { const g = S.D.guides.find(x => x.id === id); if (!g) return null; try { return JSON.parse(g.body); } catch (e) { return null; } };
+function dateStr() { const n = new Date(); let h = ''; try { h = n.toLocaleDateString('en-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) {}
+  return n.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + (h ? ' · ' + h : ''); }
+function hello() { return `<div class="hello"><div><b>Assalamualaikum, ${esc(S.me)}</b><span>${dateStr()}</span></div><div class="vals"><em>Amanah</em><em>Transparency</em><em>Accountability</em></div></div>`; }
+function inl(s) { return esc(s).replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (m, t, u) => `<a href="${u}" target="_blank" rel="noopener">${t}</a>`); }
+function rich(body) {
+  const out = [], K = { s: 'steps', b: 'chk', l: 'lk' }; let mode = '', buf = [];
+  const flush = () => { if (buf.length) out.push(mode ? `<div class="${K[mode]}">${buf.join('')}</div>` : buf.join('')); buf = []; mode = ''; };
+  String(body || '').split('\n').forEach((raw, i) => {
+    const ln = raw.trim(); let m;
+    if (!ln) { flush(); return; }
+    if (m = /^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/.exec(ln)) { if (mode !== 'l') { flush(); mode = 'l'; }
+      buf.push(`<div class="lc"><a href="${esc(m[2])}" target="_blank" rel="noopener"><span>🔗</span><b>${esc(m[1])}</b><small>${esc(m[2].replace(/^https?:\/\//, '').slice(0, 46))}</small></a><button class="s" data-copy="${esc(m[2])}">Copy</button><button class="s d" data-dellink="${i}" title="Remove link">✕</button></div>`); return; }
+    if (m = /^(\d+)[.)]\s+(.*)/.exec(ln)) { if (mode !== 's') { flush(); mode = 's'; } buf.push(`<div class="st"><i>${m[1]}</i><div>${inl(m[2])}</div></div>`); return; }
+    if (m = /^[-•]\s+(.*)/.exec(ln)) { if (mode !== 'b') { flush(); mode = 'b'; } buf.push(`<div class="ck"><i>✓</i><div>${inl(m[1])}</div></div>`); return; }
+    if (m = /^#\s+(.*)/.exec(ln)) { flush(); out.push(`<h3 class="sh">${esc(m[1])}</h3>`); return; }
+    flush(); out.push(`<p>${inl(ln)}</p>`);
+  });
+  flush(); return out.join('');
+}
+function vQr() {
+  return `<div class="card"><div class="sec"><h2>Payment QR codes</h2><span>Show or send these when members need to pay</span></div><div class="qrs">${QR.map(([id, name, bg, fg]) => { const q = qrData(id) || {};
+    return `<div class="qr"><div class="qh" style="background:${bg};color:${fg}">${name}</div><div class="qb">${q.img ? `<img src="${esc(q.img)}" alt="${esc(name)} QR code">` : '<div class="qe">No QR uploaded yet</div>'}
+    <input data-qrl="${id}" value="${esc(q.label || '')}" placeholder="Account name / number (optional)">
+    <div class="row" style="justify-content:center"><button class="s" data-qrpick="${id}">${q.img ? 'Replace' : '⬆ Upload QR'}</button>${q.img ? `<a class="s btnl" download="${esc(name)} QR.jpg" href="${esc(q.img)}">Download</a><button class="s d" data-qrdel="${id}">Remove</button>` : ''}</div></div></div>`; }).join('')}</div></div>`;
+}
+function vGuides() {
+  const seg = `<div class="seg" style="margin-bottom:14px"><button class="s${S.gtab === 'guides' ? ' on' : ''}" data-gt="guides">📚 Guides &amp; links</button><button class="s${S.gtab === 'qr' ? ' on' : ''}" data-gt="qr">📱 Payment QR codes</button></div>`;
+  if (S.gtab === 'qr') return seg + vQr();
+  const list = GL(), g = list.find(x => x.id === S.gid) || list[0], ix = Math.max(0, list.indexOf(g)), col = GC[ix % GC.length];
+  const cnt = b => ({ s: (String(b).match(/^\s*\d+[.)]\s/gm) || []).length, l: (String(b).match(/^\s*\[[^\]]+\]\(https?:\/\/[^)\s]+\)\s*$/gm) || []).length });
+  const tiles = list.map((x, i) => { const c = GC[i % GC.length], n = cnt(x.body);
+    return `<button class="tile${g && x.id === g.id ? ' on' : ''}" data-gid="${x.id}" style="--a:${c[0]};--b:${c[1]}"><span class="ti">${gIcon(x.title)}</span><b>${esc(x.title)}</b><small>${[n.s ? n.s + ' steps' : '', n.l ? n.l + ' links' : ''].filter(Boolean).join(' · ') || 'Notes'}</small></button>`; }).join('')
+    + `<button class="tile new" data-act="newGuide"><span class="ti">＋</span><b>New guide</b><small>Add a topic</small></button>`;
+  let panel = '<div style="padding:16px" class="empty">No guides yet.</div>';
+  if (g) { const n = cnt(g.body);
+    panel = S.edit ? `<div style="padding:16px"><label>Title</label><input id="g-title" value="${esc(g.title)}" style="margin-bottom:10px"><label>Content</label><textarea id="g-body" rows="14">${esc(g.body)}</textarea>
+      <p style="color:var(--m);font-size:12.5px">Tips: <code># Heading</code> · <code>1. Step</code> · <code>- Point</code> · <code>[Link name](https://…)</code> on its own line makes a link card.</p>
+      <div class="row"><button class="p" data-act="saveGuide">Save</button><button class="s" data-act="cancelEdit">Cancel</button></div></div>`
+    : `<div class="gb" style="--a:${col[0]};--b:${col[1]}"><span class="gi">${gIcon(g.title)}</span><div><h2>${esc(g.title)}</h2><small>${n.s} steps · ${n.l} links</small></div></div>
+      <div class="gc">${rich(g.body) || '<div class="empty">This guide is empty. Press Edit to add content.</div>'}</div>
+      <div class="addl"><b>🔗 Add a link</b><div class="f"><div><label>Name</label><input id="gl-label" placeholder="e.g. Reimbursement claim form"></div><div style="grid-column:span 2"><label>Link</label><input id="gl-url" placeholder="https://forms.gle/…"></div><div><button class="p" data-act="addLink">Add link</button></div></div></div>
+      <div class="row" style="padding:0 18px 18px"><button class="s" data-act="editGuide">✎ Edit text</button><button class="s d" data-delguide="${g.id}">Delete guide</button></div>`; }
+  return seg + `<div class="tiles">${tiles}</div><div class="card gp">${panel}</div>`;
+}
+$('#qf').addEventListener('change', async e => {
+  const f = e.target.files[0], k = e.target.dataset.k; e.target.value = ''; if (!f || !k) return;
+  try { toast('Processing QR…'); const img = await shrinkQr(f), q = qrData(k) || {}, nm = (QR.find(x => x[0] === k) || [0, k])[1];
+    await run({ action: 'saveGuide', item: { id: k, title: 'QR ' + nm, body: JSON.stringify({ img, label: q.label || '' }) } }, 'QR code saved'); }
+  catch (x) { toast(x.message); }
+});
+function shrinkQr(f) {
+  return new Promise((ok, no) => { const rd = new FileReader(); rd.onerror = () => no(new Error('Could not read the file'));
+    rd.onload = () => { const im = new Image(); im.onerror = () => no(new Error('Please choose a PNG or JPG image'));
+      im.onload = () => { for (const mx of [520, 420, 340, 280]) { const k = Math.min(1, mx / Math.max(im.width, im.height)), c = document.createElement('canvas');
+          c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height);
+          const u = c.toDataURL('image/jpeg', .85); if (u.length < 42000) return ok(u); }
+        no(new Error('Image is too detailed to store. Crop it tightly around the QR and try again.')); };
+      im.src = rd.result; };
+    rd.readAsDataURL(f); });
+}
+document.addEventListener('change', e => { const k = e.target.dataset.qrl; if (!k) return; const q = qrData(k) || {}, nm = (QR.find(x => x[0] === k) || [0, k])[1];
+  run({ action: 'saveGuide', item: { id: k, title: 'QR ' + nm, body: JSON.stringify({ img: q.img || '', label: e.target.value }) } }, 'Saved'); });
+
+function vSettings() {
+  return `<div class="card"><h2>Connection</h2><div class="f">
+  <div style="grid-column:1/-1"><label>Apps Script web app URL</label><input id="s-url" value="${esc(S.url)}" placeholder="https://script.google.com/macros/s/…/exec"></div>
+  <div><label>Token (from Code.gs)</label><input id="s-token" type="password" value="${esc(S.token)}"></div>
+  <div><button class="p" data-act="saveSettings">Save &amp; connect</button></div></div></div>
+  <div class="card"><h2>One-time setup</h2><ol>
+  <li>Open your Google Sheet → <b>Extensions → Apps Script</b>.</li>
+  <li>Delete the default code, paste in <code>Code.gs</code>, and change <code>TOKEN</code> to a long private password.</li>
+  <li><b>Deploy → New deployment → Web app</b>. Execute as <b>Me</b>, access <b>Anyone</b>. Authorize when asked.</li>
+  <li>Copy the web app URL, paste it above with the same token, and save.</li></ol>
+  <p style="color:var(--m)">Each person using the dashboard enters the URL and token once on their own device.</p></div>`;
+}
+
+document.addEventListener('click', async e => {
+  const el = e.target.closest('button'); if (!el) return; const d = el.dataset, v = id => ($('#' + id) || {}).value || '';
+  if (d.tab) { S.tab = d.tab; S.edit = false; render(); }
+  else if (d.act === 'refresh') load();
+  else if (d.pick) { $('#fi').dataset.arr = d.pick; $('#fi').click(); }
+  else if (d.attach) { S.attachRow = +d.attach; S.mdocs = []; renderModal(); }
+  else if (d.rmdoc) { const [a, i] = d.rmdoc.split(':'); S[a].splice(+i, 1); redocs(a); }
+  else if (d.act === 'closeM') { S.attachRow = null; renderModal(); }
+  else if (d.act === 'saveM') {
+    if (S.mdocs.some(x => x.st === 'up')) return toast('Wait for uploads to finish');
+    const tx = S.D.transactions.find(x => x.row == S.attachRow) || {}, docs = mapDocs(S.mdocs, (tx.desc || 'Proof') + ' (' + (tx.date || '') + ')');
+    if (!docs.length) return toast('Choose at least one file first');
+    const row = S.attachRow; S.attachRow = null; renderModal(); run({ action: 'linkDocs', row, docs }, 'Proof added to Google Sheets');
+  }
+  else if (d.per) { S.period = d.per; render(); }
+  else if (d.gt) { S.gtab = d.gt; S.edit = false; render(); }
+  else if (d.qrpick) { $('#qf').dataset.k = d.qrpick; $('#qf').click(); }
+  else if (d.qrdel) { if (confirm('Remove this QR code?')) run({ action: 'deleteGuide', id: d.qrdel }, 'QR code removed'); }
+  else if (d.dellink !== undefined) { const g = GL().find(x => x.id === S.gid); if (!g) return; const L = g.body.split('\n'); L.splice(+d.dellink, 1); run({ action: 'saveGuide', item: { id: g.id, title: g.title, body: L.join('\n') } }, 'Link removed'); }
+  else if (d.act === 'addLink') {
+    const g = GL().find(x => x.id === S.gid), lb = v('gl-label').trim().replace(/[\[\]]/g, ''), u = v('gl-url').trim();
+    if (!g) return; if (!lb || !/^https?:\/\/[^\s)]+$/.test(u)) return toast('Enter a name and a full link starting with https://');
+    run({ action: 'saveGuide', item: { id: g.id, title: g.title, body: (g.body.trimEnd() + '\n[' + lb + '](' + u + ')').trim() } }, 'Link added', true);
+  }
+  else if (d.view) { S.claimView = d.view; render(); }
+  else if (d.copy) { try { await navigator.clipboard.writeText(d.copy); toast('Copied to clipboard'); } catch (x) { toast('Copy failed'); } }
+  else if (d.claim) run({ action: 'claimStatus', row: +d.claim, status: d.st }, d.st ? 'Marked as paid' : 'Reopened');
+  else if (d.gid) { S.gid = d.gid; S.edit = false; render(); }
+  else if (d.task) { const t = S.D.tasks.find(x => x.id == d.task); run({ action: 'saveTask', item: { ...t, status: d.to } }, 'Task moved'); }
+  else if (d.deltask) { if (confirm('Delete this task?')) run({ action: 'deleteTask', id: d.deltask }, 'Task deleted'); }
+  else if (d.delguide) { if (confirm('Delete this guide?')) { S.gid = null; run({ action: 'deleteGuide', id: d.delguide }, 'Guide deleted'); } }
+  else if (d.act === 'addTx') {
+    const b = { action: 'addTx', date: v('tx-date'), type: v('tx-type'), cat: v('tx-cat').trim(), desc: v('tx-desc').trim(), amount: v('tx-amt') };
+    if (!b.date || !(+b.amount > 0) || !b.desc) return toast('Fill in date, description and a positive amount');
+    b.docs = [];
+    el.disabled = true; await run(b, 'Transaction added to Google Sheets', true); el.disabled = false;
+  } else if (d.act === 'addTask') {
+    if (!v('t-title').trim()) return toast('Give the task a title');
+    run({ action: 'saveTask', item: { id: uid(), title: v('t-title').trim(), assignee: v('t-who'), due: v('t-due'), status: 'todo', notes: v('t-notes'), created: today() } }, 'Task assigned', true);
+  } else if (d.act === 'newGuide') { const g = { id: uid(), title: 'New guide', body: '' }; S.D.guides.push(g); S.gid = g.id; S.edit = true; render(); }
+  else if (d.act === 'editGuide') { S.edit = true; render(); }
+  else if (d.act === 'cancelEdit') { S.edit = false; load(); }
+  else if (d.act === 'saveGuide') { S.edit = false; run({ action: 'saveGuide', item: { id: S.gid, title: v('g-title') || 'Untitled', body: v('g-body') } }, 'Guide saved'); }
+  else if (d.act === 'saveSettings') { S.url = v('s-url').trim(); S.token = v('s-token').trim(); ls.set('url', S.url); ls.set('token', S.token); S.tab = 'Overview'; load(); }
+});
+document.addEventListener('input', e => { if (e.target.id === 'q') { S.q = e.target.value; const p = e.target.selectionStart; render(); const q = $('#q'); q.focus(); q.setSelectionRange(p, p); } });
+function mapDocs(L, fallback) { return L.filter(x => x.st === 'ok').map(x => ({ url: x.url, name: x.name, dest: x.dest, title: (x.title || '').trim() || fallback })); }
+function docsUI(arr) {
+  return `<div>${S[arr].map((x, i) => `<div class="dc"><div class="dn">📄 ${esc(x.name)} ${x.st === 'up' ? '<span class="tag o">Uploading…</span>' : x.st === 'err' ? `<span class="tag o">Failed: ${esc(x.err)}</span>` : '<span class="tag">Uploaded ✓</span>'}</div>
+  ${x.st === 'ok' ? `<div class="f"><div><label>Link title in sheet</label><input data-t="${arr}:${i}" value="${esc(x.title)}" maxlength="60" placeholder="e.g. Iftar receipt"></div>
+  <div><label>Put link in column</label><select data-d="${arr}:${i}"><option value="source"${x.dest === 'source' ? ' selected' : ''}>Source Documents</option><option value="transfer"${x.dest === 'transfer' ? ' selected' : ''}>Proof of Transfer</option></select></div></div>` : ''}
+  <button class="s d" style="margin-top:6px" data-rmdoc="${arr}:${i}">Remove</button></div>`).join('')}
+  <button class="s" data-pick="${arr}">📎 Choose files</button></div>`;
+}
+function renderModal() {
+  const m = $('#mod'); if (S.attachRow == null) { m.style.display = 'none'; m.innerHTML = ''; return; }
+  const tx = S.D.transactions.find(x => x.row == S.attachRow) || {};
+  m.innerHTML = `<div class="mb2"><h2>Add proof of payment</h2><p style="color:var(--m);margin-top:0">${esc(tx.date)} · ${esc(tx.desc)} · ${rm(tx.amount)}</p>${docsUI('mdocs')}
+  <div class="row" style="margin-top:12px"><button class="p" data-act="saveM">Save to Google Sheets</button><button class="s" data-act="closeM">Cancel</button></div></div>`;
+  m.style.display = 'flex';
+}
+function redocs(arr) { arr === 'mdocs' ? renderModal() : render(); }
+document.addEventListener('input', e => { const k = e.target.dataset.t; if (k) { const [a, i] = k.split(':'); S[a][+i].title = e.target.value; } });
+document.addEventListener('change', e => { const k = e.target.dataset.d; if (k) { const [a, i] = k.split(':'); S[a][+i].dest = e.target.value; } });
+$('#fi').addEventListener('change', async e => {
+  const arr = e.target.dataset.arr || 'docs', fs = [...e.target.files]; e.target.value = '';
+  for (const f of fs) {
+    if (S[arr].length >= 5) { toast('Up to 5 files at a time'); break; }
+    const it = { name: f.name, st: 'up', title: '', dest: 'source' }; S[arr].push(it); redocs(arr);
+    try { const p = await prep(f); p.name = today() + ' ' + p.name; const r = await post({ action: 'upload', files: [p] }, true); it.url = r.files[0].url; it.st = 'ok'; }
+    catch (x) { it.st = 'err'; it.err = /permission|authoriz/i.test(x.message) ? 'Drive permission missing. In Apps Script run authorize, then deploy a New version.' : x.message; }
+    redocs(arr);
+  }
+});
+setInterval(() => load(true), 20000); window.addEventListener('focus', () => load(true));
+render(); load();
+</script>
+</body>
+</html>
